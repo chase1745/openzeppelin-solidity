@@ -12,7 +12,7 @@ contract SignatureBouncerMock is SignatureBouncer {
     return isValidSignature(_address, _sig);
   }
 
-  function onlyWithValidSignature(bytes _sig)
+  function onlyWithValidSignature(bytes memory _sig)
     onlyValidSignature(_sig)
     public
     view
