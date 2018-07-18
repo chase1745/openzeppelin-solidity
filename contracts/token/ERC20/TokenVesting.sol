@@ -71,7 +71,7 @@ contract TokenVesting is Ownable {
 
     require(unreleased > 0);
 
-    released[token] = released[token].add(unreleased);
+    released[address(token)] = released[address(token)].add(unreleased);
 
     token.safeTransfer(beneficiary, unreleased);
 
@@ -85,14 +85,14 @@ contract TokenVesting is Ownable {
    */
   function revoke(ERC20Basic token) public onlyOwner {
     require(revocable);
-    require(!revoked[token]);
+    require(!revoked[address(token)]);
 
     uint256 balance = token.balanceOf(address(this));
 
     uint256 unreleased = releasableAmount(token);
     uint256 refund = balance.sub(unreleased);
 
-    revoked[token] = true;
+    revoked[address(token)] = true;
 
     token.safeTransfer(owner, refund);
 
@@ -104,7 +104,7 @@ contract TokenVesting is Ownable {
    * @param token ERC20 token which is being vested
    */
   function releasableAmount(ERC20Basic token) public view returns (uint256) {
-    return vestedAmount(token).sub(released[token]);
+    return vestedAmount(token).sub(released[address(token)]);
   }
 
   /**
@@ -113,11 +113,11 @@ contract TokenVesting is Ownable {
    */
   function vestedAmount(ERC20Basic token) public view returns (uint256) {
     uint256 currentBalance = token.balanceOf(address(this));
-    uint256 totalBalance = currentBalance.add(released[token]);
+    uint256 totalBalance = currentBalance.add(released[address(token)]);
 
     if (block.timestamp < cliff) {
       return 0;
-    } else if (block.timestamp >= start.add(duration) || revoked[token]) {
+    } else if (block.timestamp >= start.add(duration) || revoked[address(token)]) {
       return totalBalance;
     } else {
       return totalBalance.mul(block.timestamp.sub(start)).div(duration);
